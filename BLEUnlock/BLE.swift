@@ -116,7 +116,6 @@ protocol BLEDelegate {
 }
 
 class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    let UNLOCK_DISABLED = 1
     let LOCK_DISABLED = -100
     var centralMgr : CBCentralManager!
     var devices : [UUID : Device] = [:]
@@ -128,8 +127,7 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var signalTimer: Timer?
     var presence = false
     var lockRSSI = -80
-    var unlockRSSI = -60
-    var proximityTimeout = 5.0
+    var proximityTimeout = 1.0  // Default to 1 second
     var signalTimeout = 60.0
     var lastReadAt = 0.0
     var powerWarn = true
@@ -246,7 +244,8 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     func updateMonitoredPeripheral(_ rssi: Int) {
         // print(String(format: "rssi: %d", rssi))
-        if rssi >= (unlockRSSI == UNLOCK_DISABLED ? lockRSSI : unlockRSSI) && !presence {
+        // Device is close - set presence to true
+        if rssi >= lockRSSI && !presence {
             print("Device is close")
             presence = true
             delegate?.updatePresence(presence: presence, reason: "close")
@@ -256,13 +255,15 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let estimatedRSSI = getEstimatedRSSI(rssi: rssi)
         delegate?.updateRSSI(rssi: estimatedRSSI, active: activeModeTimer != nil)
 
-        if estimatedRSSI >= (lockRSSI == LOCK_DISABLED ? unlockRSSI : lockRSSI) {
+        // If device is still within lock threshold, cancel any pending lock timer
+        if estimatedRSSI >= lockRSSI || lockRSSI == LOCK_DISABLED {
             if let timer = proximityTimer {
                 timer.invalidate()
                 print("Proximity timer canceled")
                 proximityTimer = nil
             }
         } else if presence && proximityTimer == nil {
+            // Device has moved away - start timer to lock
             proximityTimer = Timer.scheduledTimer(withTimeInterval: proximityTimeout, repeats: false, block: { _ in
                 print("Device is away")
                 self.presence = false
