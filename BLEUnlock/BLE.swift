@@ -29,7 +29,7 @@ func getNameFromMAC(_ mac: String) -> String? {
 class Device: NSObject {
     let uuid : UUID!
     var peripheral : CBPeripheral?
-    var manufacture : String?
+    var manufacturer : String?
     var model : String?
     var advData: Data?
     var rssi: Int = 0
@@ -59,7 +59,7 @@ class Device: NSObject {
                     }
                 }
             }
-            if let manu = manufacture {
+            if let manu = manufacturer {
                 if let mod = model {
                     if manu == "Apple Inc." && appleDeviceNames[mod] != nil {
                         return appleDeviceNames[mod]!
@@ -80,8 +80,8 @@ class Device: NSObject {
             // iBeacon
             if let adv = advData {
                 if adv.count >= 25 {
-                    var iBeaconPrefix : [uint16] = [0x004c, 0x01502]
-                    if adv[0...3] == Data(bytes: &iBeaconPrefix, count: 4) {
+                    let iBeaconPrefix : [UInt8] = [0x4c, 0x00, 0x02, 0x15]
+                    if adv.count >= 4 && adv[0] == iBeaconPrefix[0] && adv[1] == iBeaconPrefix[1] && adv[2] == iBeaconPrefix[2] && adv[3] == iBeaconPrefix[3] {
                         let major = uint16(adv[20]) << 8 | uint16(adv[21])
                         let minor = uint16(adv[22]) << 8 | uint16(adv[23])
                         let tx = Int8(bitPattern: adv[24])
@@ -136,7 +136,7 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var passiveMode = false
     var thresholdRSSI = -70
     var latestRSSIs: [Double] = []
-    var latestN: Int = 5
+    var latestN: Int = 10  // Increased from 5 to 10 for more stable averaging
     var activeModeTimer : Timer? = nil
     var connectionTimer : Timer? = nil
 
@@ -222,6 +222,18 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     
     func getEstimatedRSSI(rssi: Int) -> Int {
+        // Remove outliers: ignore values that differ too much from recent average
+        if !latestRSSIs.isEmpty {
+            var mean: Double = 0.0
+            var sddev: Double = 0.0
+            vDSP_normalizeD(latestRSSIs, 1, nil, 1, &mean, &sddev, vDSP_Length(latestRSSIs.count))
+            // If this reading is more than 15 dBm away from current average, it might be an outlier
+            if abs(Double(rssi) - mean) > 15.0 && latestRSSIs.count >= 3 {
+                // Use current average instead of outlier
+                return Int(mean)
+            }
+        }
+        
         if latestRSSIs.count >= latestN {
             latestRSSIs.removeFirst()
         }
@@ -288,7 +300,8 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         print("Connecting")
         centralMgr.connect(p, options: nil)
         connectionTimer?.invalidate()
-        connectionTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false, block: { _ in
+        // Reduced connection timeout from 60 to 30 seconds for faster fallback
+        connectionTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false, block: { _ in
             if p.state == .connecting {
                 print("Connection timeout")
                 self.centralMgr.cancelPeripheralConnection(p)
@@ -304,6 +317,7 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         advertisementData: [String : Any],
                         rssi RSSI: NSNumber)
     {
+        // Clamp invalid positive RSSI values to 0 (some devices report positive values incorrectly)
         let rssi = RSSI.intValue > 0 ? 0 : RSSI.intValue
         if let uuid = monitoredUUID {
             if peripheral.identifier.description == uuid.description {
@@ -371,6 +385,7 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
         guard peripheral == monitoredPeripheral else { return }
+        // Clamp invalid positive RSSI values to 0
         let rssi = RSSI.intValue > 0 ? 0 : RSSI.intValue
         //print("readRSSI \(rssi)dBm")
         updateMonitoredPeripheral(rssi)
@@ -381,7 +396,8 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             if !scanMode {
                 centralMgr.stopScan()
             }
-            activeModeTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { _ in
+            // Reduced from 2 seconds to 1 second for faster response time
+            activeModeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
                 if Date().timeIntervalSince1970 > self.lastReadAt + 10 {
                     print("Falling back to passive mode")
                     self.centralMgr.cancelPeripheralConnection(peripheral)
@@ -431,14 +447,14 @@ class BLE: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             if let s = str {
                 if let device = devices[peripheral.identifier] {
                     if characteristic.uuid == ManufacturerName {
-                        device.manufacture = s
+                        device.manufacturer = s
                         delegate?.updateDevice(device: device)
                     }
                     if characteristic.uuid == ModelName {
                         device.model = s
                         delegate?.updateDevice(device: device)
                     }
-                    if device.model != nil && device.model != nil && device.peripheral != monitoredPeripheral {
+                    if device.manufacturer != nil && device.model != nil && device.peripheral != monitoredPeripheral {
                         centralMgr.cancelPeripheralConnection(peripheral)
                     }
                 }
