@@ -46,13 +46,16 @@ If you want to build and run BLEUnlock from source code using terminal commands:
 #### Prerequisites
 
 - macOS 10.13 (High Sierra) or later
-- Xcode 10 or later
-- Xcode Command Line Tools
+- **Xcode Command Line Tools** (you do NOT need the full Xcode IDE app)
+
+**Important:** You only need the lightweight Command Line Tools, not the full Xcode application. This allows you to build entirely from the terminal without ever opening Xcode GUI.
 
 To install Command Line Tools:
 ```bash
 xcode-select --install
 ```
+
+This will install `xcodebuild` and other necessary build tools (~2-3 GB) without requiring the full Xcode IDE (~40+ GB).
 
 #### Get the Source Code
 
@@ -89,22 +92,18 @@ build/Release/BLEUnlock.app
 
 #### Run the App
 
-To open the built application:
+To open the built application from terminal:
 ```bash
 open build/Release/BLEUnlock.app
 ```
 
-Or to run it directly from Xcode:
-```bash
-xcodebuild build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
-open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
-```
+That's it! The app will launch without ever opening Xcode.
 
-Alternatively, you can open the project in Xcode GUI:
+**Optional:** If you want to use the Xcode GUI (requires full Xcode IDE installation):
 ```bash
 open BLEUnlock.xcodeproj
 ```
-Then press `Cmd+R` to build and run.
+Then press `Cmd+R` to build and run in Xcode.
 
 ## Setting up
 

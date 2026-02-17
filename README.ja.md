@@ -42,13 +42,16 @@ $ brew install bleunlock
 #### 前提条件
 
 - macOS 10.13 (High Sierra) 以上
-- Xcode 10 以上
-- Xcode Command Line Tools
+- **Xcode Command Line Tools**（完全なXcode IDEアプリは不要）
+
+**重要:** 軽量なCommand Line Toolsのみが必要で、完全なXcodeアプリケーションは不要です。Xcode GUIを開くことなく、完全にターミナルからビルドできます。
 
 Command Line Toolsをインストールするには:
 ```bash
 xcode-select --install
 ```
+
+これにより、完全なXcode IDE（40GB以上）を必要とせずに、`xcodebuild`と必要なビルドツール（約2-3GB）がインストールされます。
 
 #### ソースコードを取得
 
@@ -85,22 +88,18 @@ build/Release/BLEUnlock.app
 
 #### アプリを実行
 
-ビルドしたアプリケーションを起動するには:
+ターミナルからビルドしたアプリケーションを起動するには:
 ```bash
 open build/Release/BLEUnlock.app
 ```
 
-またはXcodeから直接実行:
-```bash
-xcodebuild build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
-open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
-```
+これで完了です！Xcodeを開くことなくアプリが起動します。
 
-あるいは、XcodeのGUIでプロジェクトを開くこともできます:
+**オプション:** Xcode GUIを使用したい場合（完全なXcode IDEのインストールが必要）:
 ```bash
 open BLEUnlock.xcodeproj
 ```
-その後、`Cmd+R`を押してビルドと実行を行います。
+その後、`Cmd+R`を押してXcodeでビルドと実行を行います。
 
 ## セットアップ
 
