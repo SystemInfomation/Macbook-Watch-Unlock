@@ -75,7 +75,7 @@ cd BLEUnlock-master
 #### アプリをビルド
 
 ```bash
-xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
 ```
 
 ビルドされたアプリは以下に配置されます:

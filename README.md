@@ -79,7 +79,7 @@ Or manually download: Go to https://github.com/ts1/BLEUnlock, click the green "C
 #### Build the App
 
 ```bash
-xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
 ```
 
 The built app will be located in:
