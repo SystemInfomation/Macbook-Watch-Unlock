@@ -43,6 +43,24 @@ Download the zip file from [Releases](https://github.com/ts1/BLEUnlock/releases)
 
 If you want to build and run BLEUnlock from source code using terminal commands:
 
+#### Quick Start (Terminal Only - No Xcode GUI Required)
+
+```bash
+# 1. Install Command Line Tools (if not already installed)
+xcode-select --install
+
+# 2. Download and extract source
+curl -L -o BLEUnlock.zip https://github.com/ts1/BLEUnlock/archive/refs/heads/master.zip
+unzip BLEUnlock.zip
+cd BLEUnlock-master
+
+# 3. Build the app
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+
+# 4. Run the app
+open build/Release/BLEUnlock.app
+```
+
 #### Prerequisites
 
 - macOS 10.13 (High Sierra) or later
