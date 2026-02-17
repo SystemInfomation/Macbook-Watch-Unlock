@@ -35,6 +35,73 @@ $ brew install bleunlock
 
 [Releases](https://github.com/ts1/BLEUnlock/releases)からzipファイルをダウンロードし、解凍してアプリケーションフォルダに移動します。
 
+### ソースコードからビルド
+
+ターミナルコマンドを使用してソースコードからBLEUnlockをビルドして実行したい場合:
+
+#### 前提条件
+
+- macOS 10.13 (High Sierra) 以上
+- Xcode 10 以上
+- Xcode Command Line Tools
+
+Command Line Toolsをインストールするには:
+```bash
+xcode-select --install
+```
+
+#### ソースコードを取得
+
+**方法1: gitを使用**
+```bash
+git clone https://github.com/ts1/BLEUnlock.git
+cd BLEUnlock
+```
+
+**方法2: ZIPでダウンロード（gitは不要）**
+```bash
+# ソースコードをZIPファイルとしてダウンロード
+curl -L -o BLEUnlock.zip https://github.com/ts1/BLEUnlock/archive/refs/heads/master.zip
+
+# ZIPファイルを展開
+unzip BLEUnlock.zip
+
+# 展開されたディレクトリに移動
+cd BLEUnlock-master
+```
+
+または手動でダウンロード: https://github.com/ts1/BLEUnlock にアクセスし、緑色の「Code」ボタンをクリックして「Download ZIP」を選択します。
+
+#### アプリをビルド
+
+```bash
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock
+```
+
+ビルドされたアプリは以下に配置されます:
+```
+build/Release/BLEUnlock.app
+```
+
+#### アプリを実行
+
+ビルドしたアプリケーションを起動するには:
+```bash
+open build/Release/BLEUnlock.app
+```
+
+またはXcodeから直接実行:
+```bash
+xcodebuild -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
+```
+
+あるいは、XcodeのGUIでプロジェクトを開くこともできます:
+```bash
+open BLEUnlock.xcodeproj
+```
+その後、`Cmd+R`を押してビルドと実行を行います。
+
 ## セットアップ
 
 初回起動時、以下の許可を要求します。適切に許可してください。

@@ -39,6 +39,73 @@ brew install bleunlock
 
 Download the zip file from [Releases](https://github.com/ts1/BLEUnlock/releases), unzip and move to the Applications folder.
 
+### Building from Source
+
+If you want to build and run BLEUnlock from source code using terminal commands:
+
+#### Prerequisites
+
+- macOS 10.13 (High Sierra) or later
+- Xcode 10 or later
+- Xcode Command Line Tools
+
+To install Command Line Tools:
+```bash
+xcode-select --install
+```
+
+#### Get the Source Code
+
+**Option 1: Using git**
+```bash
+git clone https://github.com/ts1/BLEUnlock.git
+cd BLEUnlock
+```
+
+**Option 2: Download as ZIP (no git required)**
+```bash
+# Download the source code as ZIP
+curl -L -o BLEUnlock.zip https://github.com/ts1/BLEUnlock/archive/refs/heads/master.zip
+
+# Extract the ZIP file
+unzip BLEUnlock.zip
+
+# Navigate to the extracted directory
+cd BLEUnlock-master
+```
+
+Or manually download: Go to https://github.com/ts1/BLEUnlock, click the green "Code" button, then click "Download ZIP".
+
+#### Build the App
+
+```bash
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock
+```
+
+The built app will be located in:
+```
+build/Release/BLEUnlock.app
+```
+
+#### Run the App
+
+To open the built application:
+```bash
+open build/Release/BLEUnlock.app
+```
+
+Or to run it directly from Xcode:
+```bash
+xcodebuild -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
+```
+
+Alternatively, you can open the project in Xcode GUI:
+```bash
+open BLEUnlock.xcodeproj
+```
+Then press `Cmd+R` to build and run.
+
 ## Setting up
 
 On the first launch, it asks for the following permissions, which you must grant:
