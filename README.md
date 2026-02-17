@@ -96,7 +96,7 @@ open build/Release/BLEUnlock.app
 
 Or to run it directly from Xcode:
 ```bash
-xcodebuild -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+xcodebuild build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
 open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
 ```
 

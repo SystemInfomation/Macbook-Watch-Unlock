@@ -92,7 +92,7 @@ open build/Release/BLEUnlock.app
 
 またはXcodeから直接実行:
 ```bash
-xcodebuild -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+xcodebuild build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
 open ~/Library/Developer/Xcode/DerivedData/BLEUnlock-*/Build/Products/Release/BLEUnlock.app
 ```
 
