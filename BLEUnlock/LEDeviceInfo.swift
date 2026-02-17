@@ -40,16 +40,21 @@ private func getStringFromRow(stmt: OpaquePointer?, index: Int32) -> String? {
 private func getPairedDeviceFromUUID(_ uuid: String) -> LEDeviceInfo? {
     guard let db = db_paired else { return nil }
     var stmt: OpaquePointer?
-    if sqlite3_prepare(db, "SELECT Name, Address, ResolvedAddress FROM PairedDevices where Uuid='\(uuid)'", -1, &stmt, nil) != SQLITE_OK {
+    // Use parameterized query to prevent SQL injection
+    if sqlite3_prepare(db, "SELECT Name, Address, ResolvedAddress FROM PairedDevices where Uuid=?", -1, &stmt, nil) != SQLITE_OK {
         print("failed to prepare")
         return nil
     }
+    // Bind the UUID parameter
+    sqlite3_bind_text(stmt, 1, uuid, -1, nil)
     if sqlite3_step(stmt) != SQLITE_ROW {
+        sqlite3_finalize(stmt)
         return nil
     }
     let name = getStringFromRow(stmt: stmt, index: 0)
     let address = getStringFromRow(stmt: stmt, index: 1)
     let resolvedAddress = getStringFromRow(stmt: stmt, index: 2)
+    sqlite3_finalize(stmt)
     var mac: String? = nil
     if let addr = resolvedAddress ?? address {
         // It's like "Public XX:XX:..." or "Random XX:XX:...", so split by space and take the second one
@@ -64,15 +69,20 @@ private func getPairedDeviceFromUUID(_ uuid: String) -> LEDeviceInfo? {
 private func getOtherDeviceFromUUID(_ uuid: String) -> LEDeviceInfo? {
     guard let db = db_other else { return nil }
     var stmt: OpaquePointer?
-    if sqlite3_prepare(db, "SELECT Name, Address FROM OtherDevices where Uuid='\(uuid)'", -1, &stmt, nil) != SQLITE_OK {
+    // Use parameterized query to prevent SQL injection
+    if sqlite3_prepare(db, "SELECT Name, Address FROM OtherDevices where Uuid=?", -1, &stmt, nil) != SQLITE_OK {
         print("failed to prepare")
         return nil
     }
+    // Bind the UUID parameter
+    sqlite3_bind_text(stmt, 1, uuid, -1, nil)
     if sqlite3_step(stmt) != SQLITE_ROW {
+        sqlite3_finalize(stmt)
         return nil
     }
     let name = getStringFromRow(stmt: stmt, index: 0)
     let address = getStringFromRow(stmt: stmt, index: 1)
+    sqlite3_finalize(stmt)
     var mac: String? = nil
     if let addr = address {
         // It's like "Public XX:XX:..." or "Random XX:XX:...", so split by space and take the second one
