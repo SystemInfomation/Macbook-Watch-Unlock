@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVa
     var manualLock = false
     var unlockedAt = 0.0
     var lastRSSI: Int? = nil
+    let unlockGracePeriod = 15.0
 
     func menuWillOpen(_ menu: NSMenu) {
         if menu == deviceMenu {
@@ -160,6 +161,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVa
                 userNotification = nil
             }
         } else {
+            let now = Date().timeIntervalSince1970
+            if now < unlockedAt + unlockGracePeriod {
+                // Avoid re-locking right after manual unlock while BLE reconnects.
+                manualLock = false
+                return
+            }
             // Device is away - lock the screen
             if (!isScreenLocked() && ble.lockRSSI != ble.LOCK_DISABLED) {
                 lockOrSaveScreen()
@@ -205,6 +212,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVa
     }
 
     @objc func onUnlock() {
+        unlockedAt = Date().timeIntervalSince1970
+        if let un = userNotification {
+            NSUserNotificationCenter.default.removeDeliveredNotification(un)
+            userNotification = nil
+        }
+        if let uuid = ble.monitoredUUID {
+            monitorDevice(uuid: uuid)
+        }
         Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { _ in
             print("onUnlock")
         })
@@ -302,10 +317,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVa
         lockOrSaveScreen()
     }
     
-    @objc func showAboutBox() {
-        AboutBox.showAboutBox()
-    }
-
     func constructRSSIMenu(_ menu: NSMenu, _ action: Selector) {
         menu.addItem(withTitle: t("closer"), action: nil, keyEquivalent: "")
         for proximity in stride(from: -30, to: -100, by: -5) {
@@ -365,8 +376,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVa
         mainMenu.addItem(withTitle: t("set_rssi_threshold"), action: #selector(setRSSIThreshold),
                          keyEquivalent: "")
 
-        mainMenu.addItem(NSMenuItem.separator())
-        mainMenu.addItem(withTitle: t("about"), action: #selector(showAboutBox), keyEquivalent: "")
         mainMenu.addItem(NSMenuItem.separator())
         mainMenu.addItem(withTitle: t("quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "")
         statusItem.menu = mainMenu
