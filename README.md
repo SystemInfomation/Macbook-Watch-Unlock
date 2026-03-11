@@ -39,6 +39,90 @@ brew install bleunlock
 
 Download the zip file from [Releases](https://github.com/ts1/BLEUnlock/releases), unzip and move to the Applications folder.
 
+### Building from Source
+
+If you want to build and run BLEUnlock from source code using terminal commands:
+
+#### Quick Start (Terminal Only - No Xcode GUI Required)
+
+```bash
+# 1. Install Command Line Tools (if not already installed)
+xcode-select --install
+
+# 2. Download and extract source
+curl -L -o BLEUnlock.zip https://github.com/ts1/BLEUnlock/archive/refs/heads/master.zip
+unzip BLEUnlock.zip
+cd BLEUnlock-master
+
+# 3. Build the app
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+
+# 4. Run the app
+open build/Release/BLEUnlock.app
+```
+
+#### Prerequisites
+
+- macOS 10.13 (High Sierra) or later
+- **Xcode Command Line Tools** (you do NOT need the full Xcode IDE app)
+
+**Important:** You only need the lightweight Command Line Tools, not the full Xcode application. This allows you to build entirely from the terminal without ever opening Xcode GUI.
+
+To install Command Line Tools:
+```bash
+xcode-select --install
+```
+
+This will install `xcodebuild` and other necessary build tools (~2-3 GB) without requiring the full Xcode IDE (~40+ GB).
+
+#### Get the Source Code
+
+**Option 1: Using git**
+```bash
+git clone https://github.com/ts1/BLEUnlock.git
+cd BLEUnlock
+```
+
+**Option 2: Download as ZIP (no git required)**
+```bash
+# Download the source code as ZIP
+curl -L -o BLEUnlock.zip https://github.com/ts1/BLEUnlock/archive/refs/heads/master.zip
+
+# Extract the ZIP file
+unzip BLEUnlock.zip
+
+# Navigate to the extracted directory
+cd BLEUnlock-master
+```
+
+Or manually download: Go to https://github.com/ts1/BLEUnlock, click the green "Code" button, then click "Download ZIP".
+
+#### Build the App
+
+```bash
+xcodebuild clean build -project BLEUnlock.xcodeproj -scheme BLEUnlock -configuration Release
+```
+
+The built app will be located in:
+```
+build/Release/BLEUnlock.app
+```
+
+#### Run the App
+
+To open the built application from terminal:
+```bash
+open build/Release/BLEUnlock.app
+```
+
+That's it! The app will launch without ever opening Xcode.
+
+**Optional:** If you want to use the Xcode GUI (requires full Xcode IDE installation):
+```bash
+open BLEUnlock.xcodeproj
+```
+Then press `Cmd+R` to build and run in Xcode.
+
 ## Setting up
 
 On the first launch, it asks for the following permissions, which you must grant:
